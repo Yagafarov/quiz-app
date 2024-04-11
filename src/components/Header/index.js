@@ -39,7 +39,7 @@ const Header = () => {
             color="teal"
             icon="download"
             labelPosition="left"
-            content="Install App"
+            content="Dasturni o'rnatish"
             onClick={installApp}
           />
         </Menu.Item>

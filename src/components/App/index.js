@@ -50,7 +50,7 @@ const App = () => {
   const replayQuiz = () => {
     setLoading(true);
     setLoadingMessage({
-      title: 'Ikkinchi roundga tayyorgarlik.',
+      title: 'Test qayta yuklanmoqda.',
       message: "Bu uzoq vaqt olmaydi!",
     });
 
