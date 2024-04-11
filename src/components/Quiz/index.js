@@ -122,7 +122,7 @@ const Quiz = ({ data, countdownTime, endQuiz }) => {
                 <Item.Extra>
                   <Button
                     primary
-                    content="Next"
+                    content="Keyingisi"
                     onClick={handleNext}
                     floated="right"
                     size="big"
