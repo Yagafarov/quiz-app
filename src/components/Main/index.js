@@ -66,6 +66,13 @@ const Main = ({ startQuiz }) => {
       } catch (error) {
         setProcessing(false);
         setError(error);
+        if (!navigator.onLine) {
+          setOffline(true);
+        } else {
+          setProcessing(false);
+          setError(error);
+        }
+
       }
     }, 1000);
   };
