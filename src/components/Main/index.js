@@ -11,23 +11,13 @@ import {
 } from 'semantic-ui-react';
 
 import mindImg from '../../images/one.jpg';
-
-import {
-  CATEGORIES,
-  NUM_OF_QUESTIONS,
-  DIFFICULTY,
-  QUESTIONS_TYPE,
-  COUNTDOWN_TIME,
-} from '../../constants';
+import { CATEGORIES, NUM_OF_QUESTIONS, DIFFICULTY, QUESTIONS_TYPE, COUNTDOWN_TIME } from '../../constants';
 import { shuffle } from '../../utils';
-
 import Offline from '../Offline';
+import mockData from './../Quiz/mock.json';
 
 const Main = ({ startQuiz }) => {
-  const [category, setCategory] = useState('0');
   const [numOfQuestions, setNumOfQuestions] = useState(5);
-  const [difficulty, setDifficulty] = useState('easy');
-  const [questionsType, setQuestionsType] = useState('0');
   const [countdownTime, setCountdownTime] = useState({
     hours: 0,
     minutes: 120,
@@ -41,76 +31,48 @@ const Main = ({ startQuiz }) => {
     setCountdownTime({ ...countdownTime, [name]: value });
   };
 
-  let allFieldsSelected = false;
-  if (
-    category &&
-    numOfQuestions &&
-    difficulty &&
-    questionsType &&
-    (countdownTime.hours || countdownTime.minutes || countdownTime.seconds)
-  ) {
-    allFieldsSelected = true;
-  }
-
   const fetchData = () => {
     setProcessing(true);
+    setError(null); // Reset error state
 
-    if (error) setError(null);
+    setTimeout(() => {
+      try {
+        const { response_code, results } = mockData;
 
-    const API = `https://opentdb.com/api.php?amount=${numOfQuestions}&category=${category}&difficulty=${difficulty}&type=${questionsType}`;
-
-    fetch(API)
-      .then(respone => respone.json())
-      .then(data =>
-        setTimeout(() => {
-          const { response_code, results } = data;
-
-          if (response_code === 1) {
-            const message = (
-              <p>
-                The API doesn't have enough questions for your query. (Ex.
-                Asking for 50 Questions in a Category that only has 20.)
-                <br />
-                <br />
-                Please change the <strong>No. of Questions</strong>,{' '}
-                <strong>Difficulty Level</strong>, or{' '}
-                <strong>Type of Questions</strong>.
-              </p>
-            );
-
-            setProcessing(false);
-            setError({ message });
-
-            return;
-          }
-
-          results.forEach(element => {
-            element.options = shuffle([
-              element.correct_answer,
-              ...element.incorrect_answers,
-            ]);
-          });
+        if (response_code === 1) {
+          const message = (
+            <p>
+              The API doesn't have enough questions for your query. (Ex. Asking for 50 Questions in a Category that only has 20.)
+              <br />
+              <br />
+              Please change the <strong>No. of Questions</strong>, <strong>Difficulty Level</strong>, or <strong>Type of Questions</strong>.
+            </p>
+          );
 
           setProcessing(false);
-          startQuiz(
-            results,
-            countdownTime.hours + countdownTime.minutes + countdownTime.seconds
-          );
-        }, 1000)
-      )
-      .catch(error =>
-        setTimeout(() => {
-          if (!navigator.onLine) {
-            setOffline(true);
-          } else {
-            setProcessing(false);
-            setError(error);
-          }
-        }, 1000)
-      );
+          setError({ message });
+          return;
+        }
+
+        results.forEach(element => {
+          element.options = shuffle([
+            element.correct_answer,
+            ...element.incorrect_answers,
+          ]);
+        });
+
+        setProcessing(false);
+        startQuiz(results, countdownTime.hours * 3600 + countdownTime.minutes * 60 + countdownTime.seconds);
+      } catch (error) {
+        setProcessing(false);
+        setError(error);
+      }
+    }, 1000);
   };
 
   if (offline) return <Offline />;
+
+  const allFieldsSelected = countdownTime.hours || countdownTime.minutes || countdownTime.seconds;
 
   return (
     <Container>
@@ -130,16 +92,15 @@ const Main = ({ startQuiz }) => {
               )}
               <Divider />
               <Item.Meta>
-                <p>Testlarni qaysi kategoriyada o'ynamoqchisiz?</p>
+                <p>Testlarni qaysi kategoriyada o'qishni xohlaysiz?</p>
                 <Dropdown
                   fluid
                   selection
                   name="category"
-                  placeholder="Test kategoriyasini tanlang."
+                  placeholder="Pedagogika"
                   header="Test kategoriyasini tanlang."
                   options={CATEGORIES}
-                  value={category}
-                  onChange={(e, { value }) => setCategory(value)}
+                  value="Pedagogika"
                   disabled={processing}
                 />
                 <br />
@@ -164,8 +125,7 @@ const Main = ({ startQuiz }) => {
                   placeholder="Test darajasini belgilang"
                   header="Test darajasini belgilang"
                   options={DIFFICULTY}
-                  value={difficulty}
-                  onChange={(e, { value }) => setDifficulty(value)}
+                  value="medium"
                   disabled={processing}
                 />
                 <br />
@@ -174,11 +134,10 @@ const Main = ({ startQuiz }) => {
                   fluid
                   selection
                   name="type"
-                  placeholder="Test turini tanlang"
+                  placeholder="Aralash"
                   header="Test turini tanlang"
                   options={QUESTIONS_TYPE}
-                  value={questionsType}
-                  onChange={(e, { value }) => setQuestionsType(value)}
+                  value="multiple"
                   disabled={processing}
                 />
                 <br />
