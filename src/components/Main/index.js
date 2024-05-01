@@ -86,7 +86,7 @@ const Main = ({ startQuiz }) => {
               </Item.Header>
               {error && (
                 <Message error onDismiss={() => setError(null)}>
-                  <Message.Header>Error!</Message.Header>
+                  <Message.Header>Xatolik!</Message.Header>
                   {error.message}
                 </Message>
               )}
